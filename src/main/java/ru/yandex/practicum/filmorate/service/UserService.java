@@ -17,6 +17,7 @@ public class UserService {
     private int id = 1;
 
     public User add(User user) {
+        validateName(user);
         user.setId(id++);
         users.put(user.getId(), user);
         log.info("Добавлен новый пользователь id={}", user.getId());
@@ -24,6 +25,7 @@ public class UserService {
     }
 
     public User update(User user) {
+        validateName(user);
         if (!users.containsKey(user.getId())) {
             log.warn("Такого пользователя нет в базе.");
             throw new ValidationException("Такого пользователя нет в базе.");
@@ -35,5 +37,9 @@ public class UserService {
 
     public Collection<User> getAll() {
         return users.values();
+    }
+
+    private void validateName(User user) {
+        if (user.getName() == null || user.getName().isBlank()) user.setName(user.getLogin());
     }
 }

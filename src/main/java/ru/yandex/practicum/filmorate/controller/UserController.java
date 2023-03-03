@@ -1,8 +1,5 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
@@ -14,17 +11,20 @@ import java.util.Collection;
 @RequestMapping("/users")
 public class UserController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @PostMapping
-    public ResponseEntity<User> addUser(@RequestBody @Valid User user) {
-        return new ResponseEntity<>(userService.add(user), HttpStatus.CREATED);
+    public User addUser(@RequestBody @Valid User user) {
+        return userService.add(user);
     }
 
     @PutMapping
-    public ResponseEntity<User> updateUser(@RequestBody @Valid User user) {
-        return new ResponseEntity<>(userService.update(user), HttpStatus.valueOf(200));
+    public User updateUser(@RequestBody @Valid User user) {
+        return userService.update(user);
     }
 
     @GetMapping

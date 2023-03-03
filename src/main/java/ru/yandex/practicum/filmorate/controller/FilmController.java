@@ -1,8 +1,5 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
@@ -14,18 +11,20 @@ import java.util.Collection;
 @RequestMapping("/films")
 public class FilmController {
 
-    @Autowired
-    private FilmService filmService;
+    private final FilmService filmService;
+
+    FilmController(FilmService filmService) {
+        this.filmService = filmService;
+    }
 
     @PostMapping
-    public ResponseEntity<Film> addFilm(@RequestBody @Valid Film film) {
-        Film added = filmService.add(film);
-        return new ResponseEntity<>(added, HttpStatus.CREATED);
+    public Film addFilm(@RequestBody @Valid Film film) {
+        return filmService.add(film);
     }
 
     @PutMapping
-    public ResponseEntity<Film> updateFilm(@RequestBody @Valid Film film) {
-        return new ResponseEntity<>(filmService.update(film), HttpStatus.valueOf(200));
+    public Film updateFilm(@RequestBody @Valid Film film) {
+        return filmService.update(film);
     }
 
     @GetMapping
