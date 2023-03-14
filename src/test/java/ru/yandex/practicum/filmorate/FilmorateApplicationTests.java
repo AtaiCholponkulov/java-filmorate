@@ -14,8 +14,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class FilmorateApplicationTests {
 
+	private final MockMvc mockMvc;
+
 	@Autowired
-	private MockMvc mockMvc;
+	FilmorateApplicationTests(MockMvc mockMvc) {
+		this.mockMvc = mockMvc;
+	}
 
 	@SneakyThrows
 	@Test
