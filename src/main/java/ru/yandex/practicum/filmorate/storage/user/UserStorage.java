@@ -11,7 +11,5 @@ public interface UserStorage {
 
     User update(User user);
 
-    boolean has(int id);
-
     Collection<User> getAll();
 }

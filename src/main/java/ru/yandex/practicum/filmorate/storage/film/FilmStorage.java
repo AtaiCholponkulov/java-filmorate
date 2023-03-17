@@ -11,7 +11,5 @@ public interface FilmStorage {
 
     Film update(Film film);
 
-    boolean has(int id);
-
     Collection<Film> getAll();
 }

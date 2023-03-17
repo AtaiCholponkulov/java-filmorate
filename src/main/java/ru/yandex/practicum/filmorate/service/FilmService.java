@@ -13,6 +13,8 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
+import static ru.yandex.practicum.filmorate.valid.Validator.validateFilm;
+
 @Service
 public class FilmService {
 
@@ -26,14 +28,21 @@ public class FilmService {
     }
 
     public Film add(Film film) {
+        validateFilm(film);
         return filmStorage.add(film);
     }
 
     public Film get(int filmId) {
-        return filmStorage.get(filmId);
+        Film film = filmStorage.get(filmId);
+        if (film == null)
+            throw new NotFoundException("Такого фильма нет в базе id=" + filmId);
+        return film;
     }
 
     public Film update(Film film) {
+        validateFilm(film);
+        if (filmStorage.get(film.getId()) == null)
+            throw new NotFoundException("Такого фильма нет в базе id=" + film.getId());
         return filmStorage.update(film);
     }
 
@@ -42,30 +51,31 @@ public class FilmService {
     }
 
     public void addLike(int filmId, int userId) {
-        if (!filmStorage.has(filmId))
+        Film film = filmStorage.get(filmId);
+        if (film == null)
             throw new NotFoundException("Такого фильма нет в базе id=" + filmId);
-        if (!userStorage.has(userId))
+        if (userStorage.get(userId) == null)
             throw new NotFoundException("Такого пользователя нет в базе id=" + userId);
-        filmStorage.get(filmId).addLike(userId);
+        film.addLike(userId);
     }
 
     public void removeLike(int filmId, int userId) {
-        if (!filmStorage.has(filmId))
+        Film film = filmStorage.get(filmId);
+        if (film == null)
             throw new NotFoundException("Такого фильма нет в базе id=" + filmId);
-        if (!userStorage.has(userId))
+        if (userStorage.get(userId) == null)
             throw new NotFoundException("Такого пользователя нет в базе id=" + userId);
-        filmStorage.get(filmId).removeLike(userId);
+        film.removeLike(userId);
     }
 
     public Collection<Film> getPopular(int count) {
         if (count < 1) throw new ValidationException("count не может быть меньше 1.");
 
         Collection<Film> films = filmStorage.getAll();
-        int lengthOfReturn = Math.min(Math.min(count, 10), films.size());
 
         return films.stream()
                 .sorted((film1, film2) -> film2.getLikes().size() - film1.getLikes().size())  //descending order
-                .collect(Collectors.toList())
-                .subList(0, lengthOfReturn);
+                .limit(Math.min(count, films.size()))
+                .collect(Collectors.toList());
     }
 }

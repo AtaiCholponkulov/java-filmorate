@@ -11,6 +11,8 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static ru.yandex.practicum.filmorate.valid.Validator.validateUser;
+
 @Service
 public class UserService {
 
@@ -22,14 +24,21 @@ public class UserService {
     }
 
     public User add(User user) {
+        validateUser(user);
         return userStorage.add(user);
     }
 
     public User get(int userId) {
-        return userStorage.get(userId);
+        User user = userStorage.get(userId);
+        if (user == null)
+            throw new NotFoundException("Такого пользователя нет в базе id=" + userId);
+        return user;
     }
 
     public User update(User user) {
+        validateUser(user);
+        if (userStorage.get(user.getId()) == null)
+            throw new NotFoundException("Такого пользователя нет в базе id=" + user.getId());
         return userStorage.update(user);
     }
 
@@ -38,31 +47,37 @@ public class UserService {
     }
 
     public void makeFriends(int userId, int friendId) {
-        if (!userStorage.has(userId))
+        User user = userStorage.get(userId);
+        User friend = userStorage.get(friendId);
+        if (user == null)
             throw new NotFoundException("Такого пользователя нет в базе id=" + userId);
-        if (!userStorage.has(friendId))
+        if (friend == null)
             throw new NotFoundException("Такого пользователя нет в базе id=" + friendId);
-        userStorage.get(userId).addFriend(friendId);
-        userStorage.get(friendId).addFriend(userId);
+        user.addFriend(friendId);
+        friend.addFriend(userId);
     }
 
     public void unFriend(int userId, int friendId) {
-        if (!userStorage.has(userId))
+        User user = userStorage.get(userId);
+        User friend = userStorage.get(friendId);
+        if (userStorage.get(userId) == null)
             throw new NotFoundException("Такого пользователя нет в базе id=" + userId);
-        if (!userStorage.has(friendId))
+        if (userStorage.get(friendId) == null)
             throw new NotFoundException("Такого пользователя нет в базе id=" + friendId);
-        userStorage.get(userId).removeFriend(friendId);
-        userStorage.get(friendId).removeFriend(userId);
+        user.removeFriend(friendId);
+        friend.removeFriend(userId);
     }
 
     public Collection<User> getMutual(int userId, int otherId) {
-        if (!userStorage.has(userId))
+        User user = userStorage.get(userId);
+        User otherUser = userStorage.get(otherId);
+        if (user == null)
             throw new NotFoundException("Такого пользователя нет в базе id=" + userId);
-        if (!userStorage.has(otherId))
+        if (otherUser == null)
             throw new NotFoundException("Такого пользователя нет в базе id=" + otherId);
 
-        Set<Integer> userFriends = userStorage.get(userId).getFriends();
-        Set<Integer> otherUserFriends = userStorage.get(otherId).getFriends();
+        Set<Integer> userFriends = user.getFriends();
+        Set<Integer> otherUserFriends = otherUser.getFriends();
 
         return userFriends.stream()
                 .filter(otherUserFriends::contains)
@@ -71,10 +86,11 @@ public class UserService {
     }
 
     public Collection<User> getFriends(int userId) {
-        if (!userStorage.has(userId))
+        User user = userStorage.get(userId);
+        if (user == null)
             throw new NotFoundException("Такого пользователя нет в базе id=" + userId);
 
-        return userStorage.get(userId).getFriends().stream()
+        return user.getFriends().stream()
                 .map(userStorage::get)
                 .collect(Collectors.toList());
     }
