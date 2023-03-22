@@ -41,8 +41,7 @@ public class FilmService {
 
     public Film update(Film film) {
         validateFilm(film);
-        if (filmStorage.get(film.getId()) == null)
-            throw new NotFoundException("Такого фильма нет в базе id=" + film.getId());
+        this.get(film.getId());
         return filmStorage.update(film);
     }
 
@@ -51,18 +50,14 @@ public class FilmService {
     }
 
     public void addLike(int filmId, int userId) {
-        Film film = filmStorage.get(filmId);
-        if (film == null)
-            throw new NotFoundException("Такого фильма нет в базе id=" + filmId);
+        Film film = this.get(filmId);
         if (userStorage.get(userId) == null)
             throw new NotFoundException("Такого пользователя нет в базе id=" + userId);
         film.addLike(userId);
     }
 
     public void removeLike(int filmId, int userId) {
-        Film film = filmStorage.get(filmId);
-        if (film == null)
-            throw new NotFoundException("Такого фильма нет в базе id=" + filmId);
+        Film film = this.get(filmId);
         if (userStorage.get(userId) == null)
             throw new NotFoundException("Такого пользователя нет в базе id=" + userId);
         film.removeLike(userId);
@@ -75,7 +70,7 @@ public class FilmService {
 
         return films.stream()
                 .sorted((film1, film2) -> film2.getLikes().size() - film1.getLikes().size())  //descending order
-                .limit(Math.min(count, films.size()))
+                .limit(count)
                 .collect(Collectors.toList());
     }
 }
