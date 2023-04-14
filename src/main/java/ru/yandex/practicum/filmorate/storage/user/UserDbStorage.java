@@ -17,7 +17,7 @@ import java.util.Optional;
 
 @Component
 @Slf4j
-public class UserDbStorage implements UserStorage{
+public class UserDbStorage implements UserStorage {
 
     private final JdbcTemplate jdbcTemplate;
     private final FriendDbStorage friendStorage;
