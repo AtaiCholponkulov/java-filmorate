@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 class UserDbStorageTest {
-    
+
     private final UserDbStorage userStorage;
     private User user1 = new User();
 
