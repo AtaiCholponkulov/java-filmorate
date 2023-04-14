@@ -38,7 +38,7 @@ public class UserDbStorage implements UserStorage {
 
         user.setId(simpleJdbcInsert.executeAndReturnKey(user.toMap()).intValue());//adds record in user table, returns record id
         friendStorage.addUserFriends(user);
-        
+
         log.info("Добавлен новый пользователь id={}.", user.getId());
         return user;
     }
