@@ -20,7 +20,7 @@ import java.util.Optional;
 
 @Component
 @Slf4j
-public class FilmDbStorage implements FilmStorage{
+public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
     private final UserStorage userStorage;
     private final GenreDbStorage genreStorage;
