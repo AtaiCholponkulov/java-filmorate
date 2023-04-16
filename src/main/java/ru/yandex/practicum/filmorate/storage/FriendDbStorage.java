@@ -21,9 +21,10 @@ public class FriendDbStorage {
     }
 
     public void addUserFriends(User user) {
-        String addUserFriendRelationSQLQuery = "INSERT INTO user_friend(user_id, friend_id) VALUES (?, ?)";
         Optional.ofNullable(user.getFriends()).ifPresent(friends -> { //check if set of friends is not null
-            friends.forEach(friendId -> jdbcTemplate.update(addUserFriendRelationSQLQuery, user.getId(), friendId));
+            friends.forEach(friendId -> jdbcTemplate.batchUpdate(
+                    String.format("INSERT INTO user_friend(user_id, friend_id) " +
+                                  "VALUES (%d, %d)", user.getId(), friendId)));
             log.info("Добавлены друзья пользователю id={}.", user.getId());
         });
     }

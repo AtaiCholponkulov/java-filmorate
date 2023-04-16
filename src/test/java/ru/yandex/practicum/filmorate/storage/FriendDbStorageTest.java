@@ -38,7 +38,7 @@ class FriendDbStorageTest {
     }
 
     @Test
-    void friendDaoShouldAddFriendUser2ToUser1() {
+    public void friendDaoShouldAddFriendUser2ToUser1() {
         user2 = userStorage.add(user2);
         user1.addFriend(user2.getId());
         user1 = userStorage.add(user1);
@@ -46,7 +46,7 @@ class FriendDbStorageTest {
     }
 
     @Test
-    void friendDaoShouldUpdateUser1Friends() {
+    public void friendDaoShouldUpdateUser1Friends() {
         user1 = userStorage.add(user1);
         user2 = userStorage.add(user2);
         assertEquals(0, user1.getFriends().size());
@@ -57,7 +57,7 @@ class FriendDbStorageTest {
     }
 
     @Test
-    void getUserFriends() {
+    public void getUserFriends() {
         user1 = userStorage.add(user1);
         assertEquals(0, user1.getFriends().size());
     }

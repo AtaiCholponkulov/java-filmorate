@@ -69,7 +69,7 @@ class UserDbStorageTest {
     }
 
     @Test
-    public void getAll() {
+    public void userDaoShouldReturnAll() {
         int initialSize = userStorage.getAll().size();
         userStorage.add(user1);
         assertEquals(initialSize + 1, userStorage.getAll().size());

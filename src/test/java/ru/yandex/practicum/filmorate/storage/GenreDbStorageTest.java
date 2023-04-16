@@ -42,12 +42,12 @@ class GenreDbStorageTest {
     }
 
     @Test
-    void genreDaoShouldReturnComedy() {
+    public void genreDaoShouldReturnComedy() {
         assertEquals("Комедия", genreStorage.get(1).getName());
     }
 
     @Test
-    void genreDaoShouldReturnAllGenres() {
+    public void genreDaoShouldReturnAllGenres() {
         Collection<Genre> genres = genreStorage.getAll();
         List<String> genreNames = List.of("Комедия", "Драма", "Мультфильм", "Триллер", "Документальный", "Боевик");
         genres.stream()
@@ -56,7 +56,7 @@ class GenreDbStorageTest {
     }
 
     @Test
-    void genreDaoShouldAddFilmGenres() {
+    public void genreDaoShouldAddFilmGenres() {
         film.setGenres(new HashSet<>(List.of(comedy, drama)));
         film = filmStorage.add(film);
         Set<Genre> filmGenres = filmStorage.get(film.getId()).getGenres();
@@ -66,7 +66,7 @@ class GenreDbStorageTest {
     }
 
     @Test
-    void genreDaoShouldUpdateFilmGenres() {
+    public void genreDaoShouldUpdateFilmGenres() {
         film = filmStorage.add(film);
         Set<Genre> filmGenres = filmStorage.get(film.getId()).getGenres();
         assertEquals(0, filmGenres.size());
@@ -80,9 +80,18 @@ class GenreDbStorageTest {
     }
 
     @Test
-    void genreDaoShouldGetFilmGenres() {
+    public void genreDaoShouldGetFilmGenres() {
         film = filmStorage.add(film);
         Set<Genre> filmGenres = filmStorage.get(film.getId()).getGenres();
         assertEquals(0, filmGenres.size());
+    }
+
+    @Test
+    public void genreDaoShouldReturnFilmsGenresMap() {
+        int intitialSize = genreStorage.getFilmsGenresMap().size();
+        film.setGenres(new HashSet<>(List.of(drama)));
+        film = filmStorage.add(film);
+        assertEquals(intitialSize + 1, genreStorage.getFilmsGenresMap().size());
+        assertTrue(genreStorage.getFilmsGenresMap().get(film.getId()).contains(drama));
     }
 }

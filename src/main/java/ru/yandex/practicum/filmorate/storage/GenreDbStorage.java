@@ -9,10 +9,7 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Component
 @Slf4j
@@ -47,9 +44,10 @@ public class GenreDbStorage {
     }
 
     public void addFilmGenres(Film film) {
-        String addFilmGenreRelationSQLQuery = "INSERT INTO film_genre(film_id, genre_id) VALUES (?, ?)";
         film.getGenres()
-                .forEach(genre -> jdbcTemplate.update(addFilmGenreRelationSQLQuery, film.getId(), genre.getId()));
+                .forEach(genre -> jdbcTemplate.batchUpdate(
+                        String.format("INSERT INTO film_genre(film_id, genre_id) " +
+                                      "VALUES (%d, %d)", film.getId(), genre.getId())));
         log.info("Добавлены жанры фильму id={}.", film.getId());
     }
 
@@ -73,5 +71,24 @@ public class GenreDbStorage {
             filmGenres.add(genre);
         }
         return filmGenres;
+    }
+
+    public Map<Integer, Set<Genre>> getFilmsGenresMap() {
+        SqlRowSet filmGenresRows = jdbcTemplate.queryForRowSet("SELECT fg.*, g.name AS genre_name " +
+                                        "FROM film_genre AS fg " +
+                                        "JOIN genre AS g ON fg.genre_id=g.id;");
+        Map<Integer, Set<Genre>> filmGenresMap = new HashMap<>();
+        while (filmGenresRows.next()) {
+            int filmId = filmGenresRows.getInt("film_id");
+            Genre genre = new Genre();
+            genre.setId(filmGenresRows.getInt("genre_id"));
+            genre.setName(filmGenresRows.getString("GENRE_NAME"));
+            if (filmGenresMap.get(filmId) == null) {
+                filmGenresMap.put(filmId, new HashSet<>(List.of(genre)));
+            } else {
+                filmGenresMap.get(filmId).add(genre);
+            }
+        }
+        return  filmGenresMap;
     }
 }

@@ -78,7 +78,7 @@ class FilmDbStorageTest {
     }
 
     @Test
-    void getAll() {
+    public void filmDaoShouldReturnAll() {
         int initialSize = filmStorage.getAll().size();
         filmStorage.add(film1);
         assertEquals(initialSize + 1, filmStorage.getAll().size());
