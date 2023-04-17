@@ -49,7 +49,7 @@ public class GenreDbStorage {
     public void addFilmGenres(Film film) {
         List<Genre> genres = new ArrayList<>(film.getGenres());
         jdbcTemplate.batchUpdate("INSERT INTO film_genre(film_id, genre_id) " +
-                                "VALUES (%d, %d)",
+                                "VALUES (?, ?)",
                         new BatchPreparedStatementSetter() {
                             @Override
                             public void setValues(PreparedStatement ps, int i) throws SQLException {

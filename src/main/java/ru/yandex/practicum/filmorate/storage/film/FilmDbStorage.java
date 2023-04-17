@@ -50,7 +50,7 @@ public class FilmDbStorage implements FilmStorage {
         genreStorage.addFilmGenres(film);
         List<Integer> likes = new ArrayList<>(film.getLikes());
         jdbcTemplate.batchUpdate("INSERT INTO film_like(film_id, user_id) " +
-                        "VALUES (%d, %d)",
+                        "VALUES (?, ?)",
                 new BatchPreparedStatementSetter() {
                     @Override
                     public void setValues(PreparedStatement ps, int i) throws SQLException {
@@ -102,7 +102,7 @@ public class FilmDbStorage implements FilmStorage {
         jdbcTemplate.update("DELETE FROM film_like WHERE film_id = " + film.getId());
         List<Integer> likes = new ArrayList<>(film.getLikes());
         jdbcTemplate.batchUpdate("INSERT INTO film_like(film_id, user_id) " +
-                                     "VALUES (%d, %d)",
+                                     "VALUES (?, ?)",
                 new BatchPreparedStatementSetter() {
                     @Override
                     public void setValues(PreparedStatement ps, int i) throws SQLException {
