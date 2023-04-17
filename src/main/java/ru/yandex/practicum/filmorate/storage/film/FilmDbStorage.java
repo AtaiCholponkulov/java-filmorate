@@ -2,6 +2,8 @@ package ru.yandex.practicum.filmorate.storage.film;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -12,13 +14,14 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.MPARating;
 import ru.yandex.practicum.filmorate.storage.GenreDbStorage;
 import ru.yandex.practicum.filmorate.storage.MpaDbStorage;
-import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.*;
 
-@Component
+@Component("filmDbStorage")
 @Slf4j
 public class FilmDbStorage implements FilmStorage {
 
@@ -28,7 +31,7 @@ public class FilmDbStorage implements FilmStorage {
     private final MpaDbStorage mpaStorage;
 
     @Autowired
-    public FilmDbStorage(JdbcTemplate jdbcTemplate, UserDbStorage userStorage, GenreDbStorage genreStorage, MpaDbStorage mpaStorage) {
+    public FilmDbStorage(JdbcTemplate jdbcTemplate, @Qualifier("userDbStorage") UserStorage userStorage, GenreDbStorage genreStorage, MpaDbStorage mpaStorage) {
         this.jdbcTemplate = jdbcTemplate;
         this.userStorage = userStorage;
         this.genreStorage = genreStorage;
@@ -45,8 +48,21 @@ public class FilmDbStorage implements FilmStorage {
 
         film.setId(simpleJdbcInsert.executeAndReturnKey(film.toMap()).intValue());//adds record in film table, returns record id
         genreStorage.addFilmGenres(film);
-        film.getLikes().forEach(userId -> jdbcTemplate.batchUpdate(String.format("INSERT INTO film_like(film_id, user_id) " +
-                "VALUES (%d, %d)", film.getId(), userId)));
+        List<Integer> likes = new ArrayList<>(film.getLikes());
+        jdbcTemplate.batchUpdate("INSERT INTO film_like(film_id, user_id) " +
+                        "VALUES (%d, %d)",
+                new BatchPreparedStatementSetter() {
+                    @Override
+                    public void setValues(PreparedStatement ps, int i) throws SQLException {
+                        ps.setInt(1, film.getId());
+                        ps.setInt(2, likes.get(i));
+                    }
+
+                    @Override
+                    public int getBatchSize() {
+                        return likes.size();
+                    }
+                });
 
         log.info("Добавлен новый фильм id={}.", film.getId());
         return film;
@@ -84,9 +100,21 @@ public class FilmDbStorage implements FilmStorage {
 
         genreStorage.updateFilmGenres(film);
         jdbcTemplate.update("DELETE FROM film_like WHERE film_id = " + film.getId());
-        film.getLikes().forEach(userId -> jdbcTemplate.batchUpdate(
-                String.format("INSERT INTO film_like(film_id, user_id) " +
-                              "VALUES (%d, %d)", film.getId(), userId)));
+        List<Integer> likes = new ArrayList<>(film.getLikes());
+        jdbcTemplate.batchUpdate("INSERT INTO film_like(film_id, user_id) " +
+                                     "VALUES (%d, %d)",
+                new BatchPreparedStatementSetter() {
+                    @Override
+                    public void setValues(PreparedStatement ps, int i) throws SQLException {
+                        ps.setInt(1, film.getId());
+                        ps.setInt(2, likes.get(i));
+                    }
+
+                    @Override
+                    public int getBatchSize() {
+                        return likes.size();
+                    }
+                });
 
         log.info("Обновлен фильм id={}.", film.getId());
         return film;

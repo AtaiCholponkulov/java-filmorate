@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.storage;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
@@ -9,6 +10,8 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.*;
 
 @Component
@@ -44,10 +47,21 @@ public class GenreDbStorage {
     }
 
     public void addFilmGenres(Film film) {
-        film.getGenres()
-                .forEach(genre -> jdbcTemplate.batchUpdate(
-                        String.format("INSERT INTO film_genre(film_id, genre_id) " +
-                                      "VALUES (%d, %d)", film.getId(), genre.getId())));
+        List<Genre> genres = new ArrayList<>(film.getGenres());
+        jdbcTemplate.batchUpdate("INSERT INTO film_genre(film_id, genre_id) " +
+                                "VALUES (%d, %d)",
+                        new BatchPreparedStatementSetter() {
+                            @Override
+                            public void setValues(PreparedStatement ps, int i) throws SQLException {
+                                ps.setInt(1, film.getId());
+                                ps.setInt(2, genres.get(i).getId());
+                            }
+
+                            @Override
+                            public int getBatchSize() {
+                                return genres.size();
+                            }
+                        });
         log.info("Добавлены жанры фильму id={}.", film.getId());
     }
 

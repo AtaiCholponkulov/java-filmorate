@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
 
-@Component
+@Component("userDbStorage")
 @Slf4j
 public class UserDbStorage implements UserStorage {
 
