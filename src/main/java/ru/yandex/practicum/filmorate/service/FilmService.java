@@ -6,8 +6,6 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -18,12 +16,12 @@ import static ru.yandex.practicum.filmorate.valid.Validator.validateFilm;
 public class FilmService {
 
     private final FilmStorage filmStorage;
-    private final UserStorage userStorage;
+    private final UserService userService;
 
     @Autowired
-    public FilmService(FilmDbStorage filmStorage, UserDbStorage userStorage) {
+    public FilmService(FilmDbStorage filmStorage, UserService userService) {
         this.filmStorage = filmStorage;
-        this.userStorage = userStorage;
+        this.userService = userService;
     }
 
     public Film add(Film film) {
@@ -46,14 +44,14 @@ public class FilmService {
 
     public void addLike(int filmId, int userId) {
         Film film = filmStorage.get(filmId);
-        userStorage.get(userId);//check user existence
+        userService.get(userId);//check user existence
         film.addLike(userId);
         filmStorage.update(film);
     }
 
     public void removeLike(int filmId, int userId) {
         Film film = filmStorage.get(filmId);
-        userStorage.get(userId);//check user existence
+        userService.get(userId);//check user existence
         film.removeLike(userId);
         filmStorage.update(film);
     }
