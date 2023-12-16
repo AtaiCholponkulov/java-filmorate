@@ -1,5 +1,20 @@
 # JAVA-FILMORATE
 
+This project is an API service that works with movies and user ratings, and also returns the top movies recommended for viewing. Users have the opportunity to add each other as friends and like movies.
+
+Technologies: 
+* Java 11
+* Spring Boot
+* Maven
+* H2 database
+* SQL
+* Lombok
+* JUnit
+
+### TESTING
+
+Project functionality was checked by unit testing using JUnit 5. All tests are in [this](src/test/java/ru/yandex/practicum/filmorate) directory.
+
 ---
 ### DATABASE STRUCTURE ER-DIAGRAM
 
